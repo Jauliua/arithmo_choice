@@ -134,27 +134,15 @@ export default {
     },
     mounted(){
         console.log('HomeComponent mounted')
-        // this.playAnimation();
-        console.log(this.prev_success_in_a_row)
-        console.log(this.$store.state.success_in_a_row)
-        console.log('a'+this.prev_success_in_a_row+'_'+this.$store.state.success_in_a_row)
-        console.log('this.animation_key')
-        // console.log('test')
-        console.log(this.animation_key)
-        console.log(['a1_1', 'a0_2', 'a2_2'].includes(this.animation_key))
-        console.log(row_anim_dict['a'+this.prev_success_in_a_row+'_'+this.$store.state.success_in_a_row])
         if(this.prev_success_in_a_row+1==3 && this.$store.state.success_in_a_row==0){
-            
             setTimeout(()=>{
                 this.level_out_animation = true
-                
                 setTimeout(() => {
                 this.$store.commit('setRank', this.current_rank+1)
                 this.level_in_animation = true;
                 this.level_out_animation = false;
                 level_up_audio.play();
                 setTimeout(() => {
-
                     this.level_in_animation = false;
                 }, 500);
             }, 500);
@@ -325,7 +313,7 @@ export default {
         position: absolute;
         left: 20%;
         right: 20%;
-        bottom: 7vh;
+        bottom: 5vh;
         cursor: pointer;
         border: 1.5px solid rgb(0, 0, 0);
         padding: 3px 7px;
@@ -364,7 +352,7 @@ export default {
         top: 63vh;
     }
     #next_mission{
-        font-size: 37px;
+        font-size: 36px;
         left: 3%;
         right: 3%;
     }
@@ -374,7 +362,7 @@ export default {
 
     }
     #goal_points {
-      font-size: 65px;
+      font-size: 63px;
       display: inline;
       position: relative;
       margin-right: 1%; 

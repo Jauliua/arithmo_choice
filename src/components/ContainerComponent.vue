@@ -9,12 +9,7 @@
 <script>
 import HomeComponent from './HomeComponent.vue';
 import GameComponent from './GameComponent.vue';
-let nextPoints = 0;
-let last_digit = 0;
-
-let average_achieved_points
-let average_response_times
-let data_points
+let nextPoints = 0
 export default {
     name: 'ContainerComp',
     components: {
@@ -43,7 +38,6 @@ export default {
             else{
                 return { missionPoints: this.missionPoints, missionTime: 120, 'prev_success_in_a_row': this.prev_success_in_a_row}
             }
-            // return { missionPoints: this.missionPoints }
         },
         currentEvents: function() {
             if (this.currentComponent === 'HomeComponent') {
@@ -60,69 +54,20 @@ export default {
             this.currentComponent = 'GameComponent';
         },
         returnHome(missionPoints, achievedPoints, missionTime, usedTime) {
-            console.log('after mission')
-            console.log(this.success_in_a_row)
-            console.log(this.$store.state.success_in_a_row)
             this.prev_success_in_a_row = this.success_in_a_row;
             
             if (missionPoints){
-                console.log('achievedPoints >= missionPoints')
-                console.log(achievedPoints >= missionPoints)
-                console.log('achievedPoints')
-                console.log(achievedPoints)
                 this.$store.commit('setPastAchievedPoints', achievedPoints)
                 this.$store.commit('setPastResponseTimes', usedTime)
-                data_points = Math.min(this.$store.state.past_achieved_points.length,4)
-                console.log('data_points')
-                console.log(data_points)
-                console.log('this.$store.state.past_achieved_points')
-                console.log(this.$store.state.past_achieved_points)
-                average_achieved_points = (this.$store.state.past_achieved_points.slice(-4).reduce((a, b) => a + b, 0))/data_points
-                average_response_times = (this.$store.state.past_response_times.slice(-4).reduce((a, b) => a + b, 0))/data_points
-                console.log('average_achieved_points')
-                console.log(average_achieved_points)
                 if (achievedPoints >= missionPoints) {
-                    console.log('mission success')
                     this.$store.commit('setSuccessesInARow', this.prev_success_in_a_row+1==3? 0: this.prev_success_in_a_row+1)
-                    // nextPoints = parseInt(achievedPoints*1.05);
-                    nextPoints = parseInt(average_achieved_points);
-                    console.log('nextPoints')
-                    console.log(nextPoints)
-                    console.log('usedTime')
-                    console.log(usedTime)
-                    nextPoints += (usedTime<=60)? 11: (usedTime<=90)? 6: (usedTime<=105)? 3: 0;
-                    console.log('nextPoints')
-                    console.log(nextPoints)
-                    last_digit = nextPoints % 10;
-                    if (last_digit <= 5) {
-                        console.log('last_digit1')
-                        console.log(nextPoints - last_digit+5);
-                        this.missionPoints = nextPoints - last_digit + 5
-                    } 
-                    else {
-                        console.log('last_digit2')
-                        console.log(nextPoints - last_digit+10);
-                        this.missionPoints = nextPoints - last_digit + 10
-                    }
-
+                    nextPoints = (usedTime<=30)? 15 : (usedTime<=60)? 10: (usedTime<=90)? 5: 0;
+                    this.missionPoints = missionPoints + nextPoints;
                 } 
                 else {
                     this.$store.commit('setSuccessesInARow', this.prev_success_in_a_row-1<=0? 0: this.prev_success_in_a_row-1)
-                    // nextPoints = parseInt(achievedPoints*0.95);
-                    console.log('mission fail')
-                    nextPoints = parseInt(average_achieved_points-10);
-                    last_digit = nextPoints % 10;
-                    if (last_digit <= 5) {
-                        console.log('last_digit1')
-                        console.log(nextPoints - last_digit+5);
-                        this.missionPoints = nextPoints - last_digit + 5
-                    } 
-                    else {
-                        console.log('last_digit2')
-                        console.log(nextPoints - last_digit+10);
-                        this.missionPoints = nextPoints - last_digit + 10
-                        
-                    }
+                    nextPoints = (missionPoints-achievedPoints>=20) ? 15 : (missionPoints-achievedPoints>=10) ? 10 : 0;
+                    this.missionPoints = Math.max(15, missionPoints - nextPoints);
                 }
 
                 fetch('http://127.0.0.1:5051/next_task', {
