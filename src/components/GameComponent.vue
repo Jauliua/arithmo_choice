@@ -88,7 +88,7 @@ export default {
             // console.log(this.time)
             // console.log(this.missionTime)
             this.time -= 1
-            if(this.time<=5){
+            if(this.time==5){
                 ticking_sound.play()
             }
             if(this.time == 0){

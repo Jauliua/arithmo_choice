@@ -262,8 +262,11 @@ export default {
                         console.log('tries up')
                         clearInterval(this.responseTimerId);
                         howl_triesUpAudio.play();
-                        this.input_field = '';
-                        this.$emit('task-checked', 0);
+                        this.input_field = this.data.result
+                        setTimeout(() => {
+                            this.$emit('task-checked', 0);
+                        }, 1500);
+                        // this.$emit('task-checked', 0);
                     }
                 }
                 if (this.log_performance){

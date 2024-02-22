@@ -9,47 +9,42 @@
 </template>
 
 <script>
-import playJSON from "../assets/1704715263349.json";
-
 let colors = ['FFE6A9','FFCEA3', 'FFAB9A', 'FF9BA1','FF889F', 'FF5F8D', 'FF2472' ]
 // let colors = ['FF2472', 'FF5F8D', 'FF889F', 'FF9BA1', 'FFAB9A', 'FFCEA3', 'FFE6A9']
     
 export default {
     name: 'ChoiceComponent',
-    components: {
+
+    data() {
+        return {
+            choiceTimerId: null,
+            time: 0,
+            points : [3, 6, 12, 20, 30, 45, 75],
+            difficulties: colors.map((color, index) => {
+                    return {    
+                        id: colors.length-index,
+                        color: color,
+                        opacity: 1,
+                    }
+            }),
+        }
+
     },
-        data() {
-            return {
-                choiceTimerId: null,
-                time: 0,
-                points : [3, 6, 12, 20, 30, 45, 75],
-                difficulties: colors.map((color, index) => {
-                        return {    
-                            id: colors.length-index,
-                            color: color,
-                            opacity: 1,
-                        }
-                }),
-            }
-
+    mounted(){
+        this.choiceTimerId = setInterval(() => {
+            this.time += 100
+        }, 100);
         },
-        mounted(){
-            this.choiceTimerId = setInterval(() => {
-                // console.log(this.time)
-                // console.log(this.missionTime)
-                this.time += 100
-            }, 100);
-            },
-            unmounted(){
-            clearInterval(this.choiceTimerId);
-            },
+    unmounted(){
+        clearInterval(this.choiceTimerId);
+        },
 
-        methods: {
-            taskSelected(diff){
-                clearInterval(this.choiceTimerId)
-                this.$emit('task-selected', 8-diff.id, this.time)
-            }
-        } 
+    methods: {
+        taskSelected(diff){
+            clearInterval(this.choiceTimerId)
+            this.$emit('task-selected', 8-diff.id, this.time)
+        }
+    } 
     }
 </script>
 

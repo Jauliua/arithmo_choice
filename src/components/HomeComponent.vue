@@ -63,7 +63,7 @@
                         </svg>
                     </div>
                 </div>
-                <!-- <div id="mission_time">IN {{ missionTime/60 }} MIN</div> -->
+                <div id="mission_time">IN {{ missionTime/60 }} MIN</div>
             </div>
         </div>
         <div @click="startMission()" id="start_container">

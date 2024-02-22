@@ -1,25 +1,27 @@
-# comp_arithmo
+ 
+## Project setup:
 
-## Project setup
+Check that node and npm are available with:
+node -v
+npm -v
+
+
+Navigate to arithmo_choice  directoy and run:
 ```
 npm install
+ 
+(uses packege-lock.json to install all dependencies)
 ```
 
-### Compiles and hot-reloads for development
+## Compiles and hot-reloads for development
+
 ```
-npm run serve
+npm run serve (runs development server) 
 ```
 
 ### Compiles and minifies for production
 ```
-npm run build
+npm run build (generates js html and css files from the vue project in the dist/ directory)
 ```
 
-### Lints and fixes files
-```
-npm run lint
-```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
-# arithmo_choice
