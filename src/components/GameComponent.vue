@@ -147,7 +147,7 @@ export default {
                 body: JSON.stringify({
                     "session_id": this.$store.state.sessionID,
                     "get_task": "true",
-                    "difficulty": (difficulty / 10.0) // needs work; the difficulty value should be within [0, 1]
+                    "difficulty": difficulty
                 })
             })
             .then(response => response.json())
