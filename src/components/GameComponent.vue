@@ -139,7 +139,7 @@ export default {
             console.log('loadTask');
             console.log(difficulty);
             // console.log(0.005+(0.165*(difficulty-1)))
-            fetch('http://127.0.0.1:5051/next_task', {
+            fetch('https://taskdifficulty.robert-spang.de/next_task', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -147,7 +147,7 @@ export default {
                 body: JSON.stringify({
                     "session_id": this.$store.state.sessionID,
                     "get_task": "true",
-                    "difficulty": difficulty
+                    "difficulty": (difficulty / 10.0) // needs work; the difficulty value should be within [0, 1]
                 })
             })
             .then(response => response.json())
@@ -189,7 +189,7 @@ export default {
                 clearInterval(this.timerId);
                 this.currentPoints = 0
 
-                // fetch('http://127.0.0.1:5051/next_task', {
+                // fetch('https://taskdifficulty.robert-spang.de/next_task', {
                 //     method: 'POST',
                 //     headers: {
                 //     'Content-Type': 'application/json',

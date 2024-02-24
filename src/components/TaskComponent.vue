@@ -270,7 +270,7 @@ export default {
                     }
                 }
                 if (this.log_performance){
-                    fetch('http://127.0.0.1:5051/next_task', {
+                    fetch('https://taskdifficulty.robert-spang.de/next_task', {
                         method: 'POST',
                         headers: {
                         'Content-Type': 'application/json',

@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  arithmochoice_webapp:
+    build: .
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    labels:
+      - traefik.http.routers.arithmochoice.rule=Host(`arithmochoice.robert-spang.de`)
+      - traefik.http.routers.arithmochoice.tls=true
+      - traefik.http.routers.arithmochoice.tls.certresolver=lets-encrypt
+      - traefik.port=8080
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
