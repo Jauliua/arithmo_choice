@@ -18,6 +18,7 @@
         <div  id="overview">
             <div id="rank">
                 <div id="rank_text">YOUR LEVEL: </div>
+                <div id="plus_skip" :class="{text_animation: text_in_n_out_animation}"> +1 SKIP</div>
                 <div :class="{levle_out : level_out_animation, level_in: level_in_animation}" id="level_svg_big">
                     <div id="rank_in_svg" :style="current_rank<10 ? {'font-size': '70px'} : {'font-size': '55px'}">{{ current_rank }}</div>
                     <svg width="177" height="186" viewBox="0 0 126 133" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -33,7 +34,7 @@
                 </div>
             </div>
             <div id="row_state">
-                <Vue3Lottie ref="row_anim" id="row" :animationData="row_animation" :speed="1" :loop="false" :autoPlay="['a0_0', 'a1_1', 'a2_2','a5_0', 'a5_1', 'a5_2'].includes(this.animation_key) ? false: true " :delay="500"></Vue3Lottie>
+                <Vue3Lottie ref="row_anim" id="row" :animationData="row_animation" :speed="1" :loop="false" :delay="500"></Vue3Lottie>
                 <div :class="{levle_out : level_out_animation, level_in: level_in_animation}" id="level_svg_small">
                         <div  id="rank_in_svg_small" :style="current_rank+1<10 ? {'font-size': '45px'} : {'font-size': '34px'}">{{ current_rank+1 }}</div>
                         <svg width="115" height="121" viewBox="0 0 126 133" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -49,11 +50,11 @@
                     </div>
             </div>
             <div id="mission">
-                <div  id="next_mission">NEXT MISSION</div>
+                <div  id="next_mission">NEXT MISSION:</div>
                 <div id="goal">
                     <div @click="this.$refs.row_anim.play();" id="goal_points" >{{ missionPoints }}</div>
                     <div id="coin_svg">
-                        <svg width="81" height="81" viewBox="0 0 81 81" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="75" height="75" viewBox="0 0 75 75" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="40.5" cy="40.3954" r="24.0253" fill="white" stroke="black" stroke-width="5"/>
                             <path d="M43.6511 22.9462L33.2041 44.5152" stroke="black" stroke-width="3.5" stroke-linecap="round"/>
                             <path d="M33.204 44.5152L45.4815 36.3437" stroke="black" stroke-width="3.5" stroke-linecap="round"/>
@@ -75,6 +76,9 @@
 <script>
 import {Vue3Lottie} from "vue3-lottie";
 
+import row00 from "../assets/succ_in_a_row/0-0.lottie.json";
+import row11 from "../assets/succ_in_a_row/1-1.lottie.json";
+import row22 from "../assets/succ_in_a_row/2-2.lottie.json";
 import row01 from "../assets/succ_in_a_row/0-1.lottie.json";
 import row10 from "../assets/succ_in_a_row/1-0.lottie.json";
 import row12 from "../assets/succ_in_a_row/1-2.lottie.json";
@@ -84,16 +88,16 @@ import { Howl } from "howler";
 let level_up_audio 
 
 let row_anim_dict ={
-    a0_0: row01, //also special case where animation is not played
-    a5_0: row01,
+    a0_0: row00, //also special case where animation is not played
+    a5_0: row00,
     a0_1: row01,
-    a5_1: row10, // case when page is freshly loaded 
-    a1_1: row12, //case when mission aborted
+    a5_1: row11, // case when page is freshly loaded 
+    a1_1: row11, //case when mission aborted
     a1_0: row10,
     a1_2: row12,
-    a2_2: row20, //case when mission aborted teste 
-    a0_2: row12, //case when page is freshly loaded
-    a5_2: row21, //case when page is freshly loaded
+    a2_2: row22, //case when mission aborted teste 
+    a0_2: row22, //case when page is freshly loaded
+    a5_2: row22, //case when page is freshly loaded
     a2_1: row21,
     a2_0: row20
 }
@@ -126,6 +130,7 @@ export default {
         return {
             level_out_animation: false,
             level_in_animation: false,
+            text_in_n_out_animation: false,
             animation_key : 'a'+this.prev_success_in_a_row+'_'+this.$store.state.success_in_a_row,
             row_animation: row_anim_dict['a'+this.prev_success_in_a_row+'_'+this.$store.state.success_in_a_row],
             // missingPoints: 40,
@@ -134,25 +139,35 @@ export default {
     },
     mounted(){
         console.log('HomeComponent mounted')
+        console.log('prev_success_in_a_row', this.prev_success_in_a_row)
+        console.log('this.$store.state.success_in_a_row', this.$store.state.success_in_a_row)
         if(this.prev_success_in_a_row+1==3 && this.$store.state.success_in_a_row==0){
             setTimeout(()=>{
                 this.level_out_animation = true
                 setTimeout(() => {
-                this.$store.commit('setRank', this.current_rank+1)
-                this.level_in_animation = true;
-                this.level_out_animation = false;
-                level_up_audio.play();
-                setTimeout(() => {
-                    this.level_in_animation = false;
-                }, 500);
-            }, 500);
+                    this.$store.commit('setSkips', this.$store.state.skips+1)
+                    this.$store.commit('setRank', this.current_rank+1)
+                    this.level_in_animation = true
+                    this.level_out_animation = false
+                    level_up_audio.play();
+                    setTimeout(() => {
+                        this.level_in_animation = false
+                        setTimeout(()=>{
+                            this.text_in_n_out_animation = true
+                        setTimeout(() => {
+                            console.log(this.text_in_n_out_animation)
+                            this.text_in_n_out_animation = false
+                        }, 2200);
+                        }, 300)
+                        
+                    }, 500)
+                }, 500)
             }, 500)
-            
-            
         }
     },
     methods: {
         startMission() {
+            this.$store.commit('setNthMission', this.$store.state.nth_mission+1)
             // Emit an event to trigger the startMission in the container component
             this.$emit('start-game');
         },
@@ -209,15 +224,10 @@ export default {
         
     }
     #row{
-        
-        /* width: 38vh;  */
         height: 15vh;
         z-index: -100;
         grid-column: 1/2;
-
         border: #000;
-        /* margin-right: 10vh; */
-
     }
     #level_svg_small {
         position: absolute;
@@ -243,7 +253,6 @@ export default {
         2.5px 2.1px 0px black;
 
         -webkit-text-stroke: 2px #000;
-        /* scale: 0.6; */
     }
 
 
@@ -252,11 +261,32 @@ export default {
         left: 3%;
         right: 3%;
         top: 6vh;
-        /* scale: 0.3; */
     }
 
-    
+    #plus_skip{
+        position: relative;
+        width: 100%;
+        letter-spacing: 0.001em;
+        transform : rotateX(-90deg);
+        top: 16vh;
+        left: 32vw;
 
+    }
+    @keyframes fold_up_text {
+        0% {transform: rotateX(-90deg);
+            opacity: 1;
+            top: 20vh;}
+        35% {transform: rotateX(0deg);
+            opacity: 1;
+            top: 16vh;}
+        100% {transform: rotateX(0deg);
+            opacity: 0;
+            top: 16vh;}
+        
+    }
+    .text_animation{
+        animation: fold_up_text 2.2s forwards;
+    }
     #rank_in_svg {
         position: absolute;
         left: 50%;
@@ -313,7 +343,7 @@ export default {
         position: absolute;
         left: 20%;
         right: 20%;
-        bottom: 5vh;
+        bottom: 4vh;
         cursor: pointer;
         border: 1.5px solid rgb(0, 0, 0);
         padding: 3px 7px;
@@ -349,10 +379,16 @@ export default {
         position: absolute;
         left: 6%;
         right: 6%;
-        top: 63vh;
+        top: 58vh;
+    }
+    #mission_time{
+        position: absolute;
+        left: 50%;
+        top: 20vh;
+        transform: translate(-50%, 0%);
     }
     #next_mission{
-        font-size: 36px;
+        font-size: 33px;
         left: 3%;
         right: 3%;
     }
@@ -362,7 +398,7 @@ export default {
 
     }
     #goal_points {
-      font-size: 63px;
+      font-size: 57px;
       display: inline;
       position: relative;
       margin-right: 1%; 

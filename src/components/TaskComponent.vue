@@ -1,13 +1,11 @@
 <template>
     <div id="task">
-        <!-- <RateComponent v-if="startRate" v-bind="{difficulty:difficulty, tries:tries_left, data: data }"  v-on:close="closeModal"></RateComponent> -->
-
         <div>
             <div id="challenge_card" :style="{backgroundColor: task_color}">
-                <div v-if="wow_animation">
+                <!-- <div v-if="wow_animation">
                     <Vue3Lottie :animationData="wow" :loop="false" />
-                </div>
-                <div v-else id="task_section">
+                </div> ...v-else--> 
+                <div id="task_section">
                     <div id="problem">{{problem}}</div>
                     <div id="input_field">{{input_field}}</div>
                     <div id="input_line"  :class="{ shake: disabled }">
@@ -59,39 +57,40 @@
 
 <script>
 import {Howl} from 'howler';
-// import RateComponent from './RateComponent.vue';
-import { Vue3Lottie } from "vue3-lottie";
+// import { Vue3Lottie } from "vue3-lottie";
 // import "vue3-lottie/dist/style.css";
-import playJSON from "../assets/1704715263349.json";
-import wow from "../assets/wow.json";
+// import wow from "../assets/wow.json";
 
 
 let key_vals = Array.from({length: 9}, (_, i) => i + 1)
 let colors = ['FFE6A9','FFCEA3', 'FFAB9A', 'FF9BA1','FF889F', 'FF5F8D', 'FF2472' ]
 let points = [3, 6, 12, 20, 30, 45, 75]
 let digits = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
-let howl_successAudio, howl_wrongAudio, howl_missionCompleteAudio, howl_triesUpAudio;
+let howl_successAudio = new Howl({src: [require('@/assets/success/collect_cut.mp3')],});
+let howl_wrongAudio = new Howl({src: [require('@/assets/error/error_cut.mp3')],});  
+let howl_missionCompleteAudio = new Howl({src: [require('@/assets/mission_complete/success_cut.mp3')],});
+let howl_triesUpAudio = new Howl({src: [require('@/assets/mission_failed/negative_beeps.mp3')],});
 let operators = {addition: '+', subtraction: '-', multiplication: 'x', division: '/'}
 
 export default {
     components: {
-        Vue3Lottie,
+        // Vue3Lottie,
         // RateComponent
     },
     created() {
  
-        howl_successAudio  = new Howl({
-            src: [require('@/assets/success/collect_cut.mp3')],
-          });
-        howl_missionCompleteAudio  = new Howl({
-            src: [require('@/assets/mission_complete/success_cut.mp3')],
-          });
-        howl_wrongAudio  = new Howl({
-            src: [require('@/assets/error/error_cut.mp3')],
-          });
-        howl_triesUpAudio = new Howl({
-            src: [require('@/assets/mission_failed/negative_beeps.mp3')],
-          });
+        // howl_successAudio  = new Howl({
+        //     src: [require('@/assets/success/collect_cut.mp3')],
+        //   });
+        // howl_missionCompleteAudio  = new Howl({
+        //     src: [require('@/assets/mission_complete/success_cut.mp3')],
+        //   });
+        // howl_wrongAudio  = new Howl({
+        //     src: [require('@/assets/error/error_cut.mp3')],
+        //   });
+        // howl_triesUpAudio = new Howl({
+        //     src: [require('@/assets/mission_failed/negative_beeps.mp3')],
+        //   });
     },
 
     props:{
@@ -122,8 +121,7 @@ export default {
     },
     data() {
         return {
-            playJSON,
-            wow,
+            // wow,
             wow_animation: false,
             keys: key_vals.map((val, index) => {
                 return {
@@ -159,6 +157,9 @@ export default {
         window.removeEventListener('keydown', this.handleKeydown);
     },
     computed: {
+        nth_mission : function(){
+            return this.$store.state.nth_mission
+        },
         task_color: function() {
             return '#' + colors[this.difficulty-1]
         },
@@ -252,7 +253,7 @@ export default {
                         }
                         setTimeout(() => {
                             this.disabled = false
-                        }, 1500)
+                        }, 1200)
                         this.input_field = '';
                     }
 
@@ -270,7 +271,8 @@ export default {
                     }
                 }
                 if (this.log_performance){
-                    fetch('https://taskdifficulty.robert-spang.de/next_task', {
+                    // fetch('https://taskdifficulty.robert-spang.de/next_task', {
+                    fetch('http://127.0.0.1:5051/next_task', {
                         method: 'POST',
                         headers: {
                         'Content-Type': 'application/json',
@@ -288,8 +290,15 @@ export default {
                             "taskComplete": this.taskComplete,                 
                             "responseTime": this.responseTime,
                             "choiceTime": this.choiceTime,
+                            "timestamp": new Date().toISOString(),
+                            "game_type": "choice",
+                            "nth_mission": this.$store.state.nth_mission,
+                            "skipped": parseInt(0),
+                            "aborted": parseInt(0),
+                            "time_up": parseInt(0)
                         })
                     })
+                    
                     .then(response => response.json())
                     .then(data => {
                         console.log('data after log_performance')

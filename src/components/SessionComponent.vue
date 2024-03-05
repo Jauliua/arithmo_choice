@@ -32,7 +32,11 @@
 </template>
 
 <script>
-    export default {
+let usedTime
+let achievedPoints
+let missionPoints
+let nextPoints
+export default {
         name: 'SessionComponent',
         
         data() {
@@ -51,8 +55,10 @@
         methods: {
             enter() {
                 this.$store.commit('setSessionID', this.sessionID)
-                fetch('https://taskdifficulty.robert-spang.de/next_task', {
-                    method: 'POST',
+                // fetch('https://taskdifficulty.robert-spang.de/next_task', {
+                fetch('http://127.0.0.1:5051/next_task', {
+
+                  method: 'POST',
                     headers: {
                     'Content-Type': 'application/json',
                     },
@@ -77,11 +83,27 @@
                         // 'saved_points_now': 0
                         this.$store.commit('setRank', data['rank_now'])
                         this.$store.commit('setSuccessesInARow', data['successes_in_a_row_now'])
-                        this.$store.commit('setPastMissions', data['passt_missions'])
-                        this.$store.commit('setPastSuccesses', data['passt_successes'])
-                        this.$store.commit('setPastAchievedPoints', data['passt_achieved_points'])
-                        this.$store.commit('setPastResponseTimes', data['passt_response_times'])
+                        this.$store.commit('setPastMissions', data['past_missions'])
+                        this.$store.commit('setPastSuccesses', data['past_successes'])
+                        this.$store.commit('setPastAchievedPoints', data['past_achieved_points'])
+                        this.$store.commit('setPastResponseTimes', data['past_response_times'])
+                        this.$store.commit('setSkips', data['skips'])
+                        this.$store.commit('setNthMission', data['nth_mission'])
+                        usedTime = data['past_response_times'][data['past_response_times'].length-1]
+                        achievedPoints = data['past_achieved_points'][data['past_achieved_points'].length-1]
+                        missionPoints = data['past_missions'][data['past_missions'].length-1]
 
+                        if (achievedPoints >= missionPoints) {
+                          nextPoints = (usedTime<=30)? 15 : (usedTime<=60)? 10: (usedTime<=90)? 5: 0;
+                          missionPoints = missionPoints + nextPoints; 
+                        } 
+                        else {
+                            nextPoints = (missionPoints-achievedPoints>=20) ? 15 : (missionPoints-achievedPoints>=10) ? 10 : 0;
+                            missionPoints = Math.max(15, missionPoints - nextPoints);
+                        }
+                        if(missionPoints){
+                          this.$store.commit('setStartMissionPoints', missionPoints)
+                        }
                     })
                     .catch((error) => {
                         console.error('Error:', error);

@@ -25,7 +25,9 @@
             <div id="current_points">{{ currentPoints }}</div>
             <div id="mission_points">/ {{ missionPoints }}</div>
             <div id="timer" :class="{timeCountdown: time < 5}">{{ prettyTime }}</div>
+            
         </div>
+        <div id="skip" @click="useSkip" :style="{color: currentGameComponent=='ChoiceComponent'? '#fff' : (skips==0? '#909090' : '#000'), borderColor: currentGameComponent=='ChoiceComponent'? '#fff' : (skips==0? '#909090' : '#000' )}">SKIP [{{skips}}]</div>
         <transition :name="transitionName">
         <component id="game_comp" :is="currentGameComponent" v-bind="currentGameProperties"  v-on="currentGameEvents"  class="game-component"/>
         </transition>
@@ -37,26 +39,23 @@ import {Howl} from 'howler';
 import ChoiceComponent from './ChoiceComponent.vue';
 import TaskComponent from './TaskComponent.vue';
 import AbortMissionModal from './AbortMissionModal.vue';    
-// import RateComponent from './RateComponent.vue';    
+let ticking_sound = new Howl({src: [require('@/assets/ticking/clock-ticking_cut.mp3')],});
+let mission_failed_sound = new Howl({ src: [require('@/assets/mission_failed/mission_failed.wav')], });
 
-let missingPoints
-let ticking_sound, mission_failed_sound
-// let successAudio = new Audio(require('@/assets/successAudio.mp3')); // path to file
 export default {
     name: 'GameComponent',
     created(){
-        ticking_sound = new Howl({
-            src: [require('@/assets/ticking/clock-ticking.mp3')],
-          });
-        mission_failed_sound = new Howl({
-            src: [require('@/assets/mission_failed/mission_failed.wav')],
-          });
+        // ticking_sound = new Howl({
+        //     src: [require('@/assets/ticking/clock-ticking_cut.mp3')],
+        //   });
+        // mission_failed_sound = new Howl({
+        //     src: [require('@/assets/mission_failed/mission_failed.wav')],
+        //   });
     },
     components: {
         ChoiceComponent,
         TaskComponent,
         AbortMissionModal
-        // RateComponent
     },
     props: {
         missionPoints: {
@@ -79,6 +78,8 @@ export default {
             currentDifficulty: null,
             currentGameComponent: 'ChoiceComponent',
             currentGameProperties: {},
+            data : null,
+            choiceTime: null
             // successAudio: successAudio
         }
     },
@@ -92,7 +93,10 @@ export default {
                 ticking_sound.play()
             }
             if(this.time == 0){
-                this.returnHome(this.currentPoints)
+                if (this.currentGameComponent === 'TaskComponent'){
+                    this.log_performance('time_up')
+                }
+                this.returnHome(this.currentPoints, false)
             }
         }, 1000);
     },
@@ -101,6 +105,9 @@ export default {
     },
 
     computed: {
+        skips: function(){
+            return this.$store.state.skips
+        },
         prettyTime: function() {
             let minutes = Math.floor(this.time / 60);
             let seconds = this.time % 60;
@@ -126,20 +133,66 @@ export default {
        
     },
     methods: {
+        log_performance(stop_reason){
+            if (this.data){
+                fetch('http://127.0.0.1:5051/next_task', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "session_id": this.$store.state.sessionID,
+                    "log_performance": "false",
+                    "taskID":  this.data.taskID,
+                    "first_number": this.data.first_number,
+                    "second_number": this.data.second_number,
+                    "operation": this.data.operation,
+                    "result": this.data.result,
+                    "difficulty": this.currentDifficulty,
+                    "tries": -1,
+                    "taskComplete": false,                 
+                    "responseTime": -1,
+                    "choiceTime": this.choiceTime,
+                    "timestamp": new Date().toISOString(),
+                    "game_type": "choice",
+                    "nth_mission": this.$store.state.nth_mission,
+                    "skipped": stop_reason=='skipped' ? parseInt(1) : parseInt(0),
+                    "aborted": stop_reason=='aborted' ? parseInt(1) : parseInt(0),
+                    "time_up": stop_reason=='time_up' ? parseInt(1) : parseInt(0),
+                })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('data after log_performance')
+                    console.log(data)
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+        },
+        useSkip(){
+            if(this.skips > 0 && this.currentGameComponent === 'TaskComponent'){
+                this.$store.commit('setSkips', this.skips-1)
+                this.log_performance('skipped')
+                this.currentGameProperties = {}
+                this.currentGameComponent = 'ChoiceComponent'
+            }
+        },
         abortMission() {
             this.abort_mission_modal = true;
         },
         checkModal(closeBool) {
             this.abort_mission_modal = false;
             if (closeBool === 1) {
-                this.returnHome()
+                this.log_performance('aborted')
+                this.returnHome(this.currentPoints, true)
             }
         },
         loadTask(difficulty, choiceTime) {
             console.log('loadTask');
             console.log(difficulty);
-            // console.log(0.005+(0.165*(difficulty-1)))
-            fetch('https://taskdifficulty.robert-spang.de/next_task', {
+            fetch('http://127.0.0.1:5051/next_task',{
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -152,31 +205,26 @@ export default {
             })
             .then(response => response.json())
             .then(data => {
-                // console.log('data')
-                // console.log(data)
-                // this.currentDifficulty = difficulty
-                this.currentGameProperties = { difficulty: difficulty, tries: 3, currentPoints: this.currentPoints,  missionPoints: this.missionPoints, data: data, choiceTime: choiceTime};
-                this.currentGameComponent = 'TaskComponent';
+                this.currentDifficulty = difficulty
+                this.choiceTime = choiceTime
+                this.data = data
+                this.currentGameProperties = { difficulty: difficulty, tries: 3, currentPoints: this.currentPoints,  missionPoints: this.missionPoints, data: data, choiceTime: choiceTime}
+                this.currentGameComponent = 'TaskComponent'
             })
             .catch((error) => {
-                console.error('Error:', error);
+                console.error('Error:', error)
             });
-            // this.currentGameComponent = 'TaskComponent';
         },
 
-        //called when time is up or the user returns home 
-
-        returnHome(currentPoints) {
+        returnHome(currentPoints, aborted) {
             ticking_sound.stop()
             console.log('Current Points in returnHome (GameComponent): ', currentPoints)
-            missingPoints = 0
             if(currentPoints){
                 if(currentPoints >= this.missionPoints){
                     console.log('you won')
                 }
                 else{
                     console.log("You lost!")
-                    missingPoints= this.missionPoints - currentPoints
                     mission_failed_sound.play()
                 }
                 let usedTime = this.missionTime - this.time
@@ -188,47 +236,17 @@ export default {
                 ticking_sound.stop()
                 clearInterval(this.timerId);
                 this.currentPoints = 0
-
-                // fetch('https://taskdifficulty.robert-spang.de/next_task', {
-                //     method: 'POST',
-                //     headers: {
-                //     'Content-Type': 'application/json',
-                //     },
-                //     body: JSON.stringify({
-                //         "session_id": this.$store.state.sessionID,
-                //         "log_mission_data": "true",
-                //         "nth_mission": 0,
-                //         "mission_time": this.missionTime,
-                //         "mission_points": this.missionPoints,
-                //         "success": currentPoints >= this.missionPoints,
-                //         "points_achieved": achievedPoints,
-                //         "response_time": usedTime,
-                //         "rank_now": 0,
-                //         "successes_in_a_row_now": 0,
-                //         "successes_overall": 0,
-                //         "saved_points_now": 0
-                //     })
-                // })
-                // .then(response => response.json())
-                // .then(data => {
-                //     console.log('response from server to log_mission_data')
-                //     console.log(data)
-                // })
-                // .catch((error) => {
-                //     console.error('Error:', error);
-                // });
-                this.$emit('return-home', this.missionPoints, achievedPoints, this.missionTime, usedTime);
+                this.$emit('return-home', this.missionPoints, achievedPoints, this.missionTime, usedTime, aborted);
             }
             else {
-                this.$emit('return-home', null, null, null, null);
+                this.$emit('return-home', null, null, null, null, aborted);
             }
-
         },
 
         updateState(points){
             this.currentPoints += points
             if (this.currentPoints >= this.missionPoints){
-                this.returnHome(this.currentPoints)
+                this.returnHome(this.currentPoints, false)
             }
             else{
                 this.currentGameProperties = {}
@@ -253,7 +271,6 @@ export default {
 .choice-leave-to {
   transform: translateX(100%);
 }
-
 /* For TaskComponent */
 .task-enter-active, .task-leave-active {
   transition: all 0.1s;
@@ -268,7 +285,7 @@ export default {
     margin-left: 3%;
     margin-right: 3%;
     /* margin-bottom: 4; */
-    height: 10vh;
+    height: 13.3vh;
     /* padding: 0.3vh; */
     display: grid;
     grid-template-rows: 1fr 1fr;
@@ -279,26 +296,22 @@ export default {
     font-family: Kodchasan;
     color: #000;
 }
-
 #coin {
     grid-row: 1/3;
     grid-column: 1/2;
 }
-
 #current_points {
     justify-self: start;
     font-size: 30px;
     grid-row: 1/2;
     grid-column: 2/3;
 }
-
 #mission_points {
     justify-self: start;
     font-size: 30px;
     grid-row: 2/3;
     grid-column: 2/3;
 }
-
 #timer {
     font-size: 26px;
     grid-row: 1/3;
@@ -309,13 +322,33 @@ export default {
     padding-right: 6px;
     justify-self: start;
 }
+#skip{
+    cursor: pointer;
+    position: absolute;
+    display: inline;
+    top: 21vh;
+    right: 3vw;
+    border: 2px solid ;
+    border-color: #909090;
+    padding: 1.5px 4px;
+    background-color: #fff;
+    border-radius: 3px;
+    /* margin-top: -1.7vh;
+    float: right; */
+    font-size: 15px;
+    margin-bottom: 3px;
+    /* margin-right: 3vw; */
+    font-weight: 600;
+    font-family: Kodchasan;
+    color: #909090;
+}
 .timeCountdown{
     color: red;
 }
 .game-component {
     width: 100%;
-    top: 20vh;
-    height: 80vh;
+    top: 24vh;
+    height: 77vh;
     position: absolute;
 }
 

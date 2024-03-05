@@ -2,6 +2,7 @@
     <div class="landing-page">
         <SessionComponent v-if="sessionComponent" @close="storeSessionID"></SessionComponent>
         <h1 class="title">ARITHMO</h1>
+        <h3 class="type_title">choice</h3>
         <!-- <Vue3Lottie id="wow_anim" :animationData="wow" :height="200" :width="200" /> -->
         <div id="tutorial-button">
             <div id="tutorial">TUTORIAL</div></div>
@@ -53,9 +54,17 @@ export default {
     height: 100vh;
     font-family: 'Kodchasan', sans-serif;
 }
+.type_title{
+    margin-top: 0;
+    font-size: 26px;
+    font-weight: 600;
+    font-family: Kodchasan;
+    color: #000;
 
+}
 .title {
     padding-top: 12vh;
+    margin-bottom: 0;
     color: #fff;
     position: relative;
     letter-spacing: 0.1em;

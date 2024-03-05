@@ -1,5 +1,5 @@
 {
-  "name": "comp_arithmo",
+  "name": "choice_arithmo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,6 +11,7 @@
     "core-js": "^3.8.3",
     "howler": "^2.2.4",
     "vue": "^3.2.13",
+    "vue-cli-plugin-webpack-bundle-analyzer": "^4.0.0",
     "vue3-lottie": "^3.2.0",
     "vuex": "^4.1.0"
   },
@@ -35,7 +36,9 @@
     "parserOptions": {
       "parser": "@babel/eslint-parser"
     },
-    "rules": {"no-unused-vars": "off"}
+    "rules": {
+      "no-unused-vars": "off"
+    }
   },
   "browserslist": [
     "> 1%",

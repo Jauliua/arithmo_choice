@@ -19,17 +19,21 @@ export default {
     data() {
         return {
             currentComponent: 'HomeComponent',
-            missionPoints: 15,
-            prev_success_in_a_row: 5
+            missionPoints: this.$store.state.start_mission_points,
+            prev_success_in_a_row: this.$store.state.success_in_a_row
         };
     },
     computed: {
+        nth_mission: function(){
+            return this.$store.state.nth_mission
+        },
         success_in_a_row: function(){
             return this.$store.state.success_in_a_row
         },
         rank_now : function(){
             return this.$store.state.rank
         },
+        
         
         currentProperties: function() {
             if(this.currentComponent === 'GameComponent'){
@@ -53,24 +57,36 @@ export default {
         startMission() {
             this.currentComponent = 'GameComponent';
         },
-        returnHome(missionPoints, achievedPoints, missionTime, usedTime) {
+        returnHome(missionPoints, achievedPoints, missionTime, usedTime, aborted) {
             this.prev_success_in_a_row = this.success_in_a_row;
             
             if (missionPoints){
+                console.log('returnHome ContainerComp');
+                console.log('missionPoints: ', missionPoints)
+                console.log('achievedPoints: ', achievedPoints)
+                console.log('missionTime: ', missionTime)
+                console.log(achievedPoints >= missionPoints)
                 this.$store.commit('setPastAchievedPoints', achievedPoints)
                 this.$store.commit('setPastResponseTimes', usedTime)
-                if (achievedPoints >= missionPoints) {
+                if (aborted){
+                    this.missionPoints = missionPoints
+                }
+                else if (achievedPoints >= missionPoints) {
+                    console.log('calculates next mission points')
                     this.$store.commit('setSuccessesInARow', this.prev_success_in_a_row+1==3? 0: this.prev_success_in_a_row+1)
                     nextPoints = (usedTime<=30)? 15 : (usedTime<=60)? 10: (usedTime<=90)? 5: 0;
                     this.missionPoints = missionPoints + nextPoints;
                 } 
                 else {
+                    console.log('15?')
                     this.$store.commit('setSuccessesInARow', this.prev_success_in_a_row-1<=0? 0: this.prev_success_in_a_row-1)
                     nextPoints = (missionPoints-achievedPoints>=20) ? 15 : (missionPoints-achievedPoints>=10) ? 10 : 0;
                     this.missionPoints = Math.max(15, missionPoints - nextPoints);
                 }
 
-                fetch('https://taskdifficulty.robert-spang.de/next_task', {
+                // fetch('https://taskdifficulty.robert-spang.de/next_task', {
+                fetch('http://127.0.0.1:5051/next_task', {
+                
                     method: 'POST',
                     headers: {
                     'Content-Type': 'application/json',
@@ -78,7 +94,7 @@ export default {
                     body: JSON.stringify({
                         "session_id": this.$store.state.sessionID,
                         "log_mission_data": "true",
-                        "nth_mission": 0,
+                        "nth_mission": this.nth_mission,
                         "mission_time": missionTime,
                         "mission_points": missionPoints,
                         "success": achievedPoints >= missionPoints,
@@ -86,8 +102,10 @@ export default {
                         "response_time": usedTime,
                         "rank_now": this.prev_success_in_a_row+1==3 ? this.rank_now+1 : this.rank_now,
                         "successes_in_a_row_now": this.$store.state.success_in_a_row,
-                        "successes_overall": 0,
-                        "saved_points_now": 0
+                        "skips": this.$store.state.skips,
+                        "aborted": aborted.toString(),
+                        "timestamp": new Date().toISOString(),
+                        "game_type": "choice"
                     })
                 })
                 .then(response => response.json())

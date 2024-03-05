@@ -26,6 +26,9 @@ const store = createStore({
       sessionID: null,
       rank: null,
       success_in_a_row: null,
+      nth_mission: null,
+      start_mission_points: 15,
+      skips: null,
       past_missions: [],
       past_successes: [],
       past_achieved_points: [],
@@ -87,6 +90,16 @@ const store = createStore({
               state.past_response_times.push(past_response_times)
             }
           }
+        },
+        setStartMissionPoints(state, start_mission_points) {
+          state.start_mission_points = start_mission_points
+        },
+        setSkips(state, skips) {
+          console.log('setting skips to: ' + skips)
+          state.skips = skips
+        },
+        setNthMission(state, nth_mission) {
+          state.nth_mission = nth_mission
         }
     }
 })

@@ -14,7 +14,9 @@ let colors = ['FFE6A9','FFCEA3', 'FFAB9A', 'FF9BA1','FF889F', 'FF5F8D', 'FF2472'
     
 export default {
     name: 'ChoiceComponent',
-
+    props:{
+        timeIsUp: Boolean
+    },
     data() {
         return {
             choiceTimerId: null,
