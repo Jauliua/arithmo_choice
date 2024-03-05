@@ -39,7 +39,7 @@ import {Howl} from 'howler';
 import ChoiceComponent from './ChoiceComponent.vue';
 import TaskComponent from './TaskComponent.vue';
 import AbortMissionModal from './AbortMissionModal.vue';    
-let ticking_sound = new Howl({src: [require('@/assets/ticking/clock-ticking_cut.mp3')],});
+let ticking_sound = new Howl({src: [require('@/assets/ticking/clock-ticking.mp3')],});
 let mission_failed_sound = new Howl({ src: [require('@/assets/mission_failed/mission_failed.wav')], });
 
 export default {
@@ -135,7 +135,8 @@ export default {
     methods: {
         log_performance(stop_reason){
             if (this.data){
-                fetch('http://127.0.0.1:5051/next_task', {
+                fetch('https://taskdifficulty.robert-spang.de/next_task', {
+                // fetch('http://127.0.0.1:5051/next_task', {
                 method: 'POST',
                 headers: {
                 'Content-Type': 'application/json',
@@ -192,7 +193,8 @@ export default {
         loadTask(difficulty, choiceTime) {
             console.log('loadTask');
             console.log(difficulty);
-            fetch('http://127.0.0.1:5051/next_task',{
+            fetch('https://taskdifficulty.robert-spang.de/next_task', {
+            // fetch('http://127.0.0.1:5051/next_task',{
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',

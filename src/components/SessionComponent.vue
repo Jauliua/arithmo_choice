@@ -55,8 +55,8 @@ export default {
         methods: {
             enter() {
                 this.$store.commit('setSessionID', this.sessionID)
-                // fetch('https://taskdifficulty.robert-spang.de/next_task', {
-                fetch('http://127.0.0.1:5051/next_task', {
+                fetch('https://taskdifficulty.robert-spang.de/next_task', {
+                // fetch('http://127.0.0.1:5051/next_task', {
 
                   method: 'POST',
                     headers: {
