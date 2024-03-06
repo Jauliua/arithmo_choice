@@ -14,7 +14,6 @@
                 </svg>
             </div>
         </div>
-
         <div  id="overview">
             <div id="rank">
                 <div id="rank_text">YOUR LEVEL: </div>
@@ -85,7 +84,7 @@ import row12 from "../assets/succ_in_a_row/1-2.lottie.json";
 import row21 from "../assets/succ_in_a_row/2-1.lottie.json";
 import row20 from "../assets/succ_in_a_row/2-0.lottie.json";
 import { Howl } from "howler";
-let level_up_audio 
+let level_up_audio  = new Howl({src: [require('@/assets/click-level-up.mp3')],});
 
 let row_anim_dict ={
     a0_0: row00, //also special case where animation is not played
@@ -106,12 +105,7 @@ export default {
         Vue3Lottie
     },
     name: 'HomeComponent',
-    created: function(){
-        level_up_audio = new Howl({
-            src: [require('@/assets/click-level-up.mp3')],
-            // volume: 0.5
-        });
-    },
+
     props: {
         missionPoints: {
             type: Number,
@@ -133,14 +127,9 @@ export default {
             text_in_n_out_animation: false,
             animation_key : 'a'+this.prev_success_in_a_row+'_'+this.$store.state.success_in_a_row,
             row_animation: row_anim_dict['a'+this.prev_success_in_a_row+'_'+this.$store.state.success_in_a_row],
-            // missingPoints: 40,
-            // missionTime: 11
         };
     },
     mounted(){
-        console.log('HomeComponent mounted')
-        console.log('prev_success_in_a_row', this.prev_success_in_a_row)
-        console.log('this.$store.state.success_in_a_row', this.$store.state.success_in_a_row)
         if(this.prev_success_in_a_row+1==3 && this.$store.state.success_in_a_row==0){
             setTimeout(()=>{
                 this.level_out_animation = true
@@ -173,7 +162,6 @@ export default {
         },
         returnLanding() {
             // Emit an event to trigger the returnLanding in the container component
-            console.log("return landing in HomeComponent");
             this.$emit('return-landing');
         }
     },

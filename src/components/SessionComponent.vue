@@ -54,6 +54,7 @@ export default {
         },
         methods: {
             enter() {
+              if (this.sessionID) {
                 this.$store.commit('setSessionID', this.sessionID)
                 fetch('https://taskdifficulty.robert-spang.de/next_task', {
                 // fetch('http://127.0.0.1:5051/next_task', {
@@ -69,18 +70,6 @@ export default {
                     })
                     .then(response => response.json())
                     .then(data => {
-                        console.log('data after initial session_id')
-                        console.log(data)
-                        // 'session_id': data['session_id'],
-                        // 'nth_mission': 0,
-                        // 'mission_time': 0,
-                        // 'success': 0,
-                        // 'points_achieved': 0,
-                        // 'response_time': 0,
-                        // 'rank_now': 1,
-                        // 'successes_in_a_row_now': 0,
-                        // 'successes_overall': 0,
-                        // 'saved_points_now': 0
                         this.$store.commit('setRank', data['rank_now'])
                         this.$store.commit('setSuccessesInARow', data['successes_in_a_row_now'])
                         this.$store.commit('setPastMissions', data['past_missions'])
@@ -92,7 +81,6 @@ export default {
                         usedTime = data['past_response_times'][data['past_response_times'].length-1]
                         achievedPoints = data['past_achieved_points'][data['past_achieved_points'].length-1]
                         missionPoints = data['past_missions'][data['past_missions'].length-1]
-
                         if (achievedPoints >= missionPoints) {
                           nextPoints = (usedTime<=30)? 15 : (usedTime<=60)? 10: (usedTime<=90)? 5: 0;
                           missionPoints = missionPoints + nextPoints; 
@@ -110,6 +98,7 @@ export default {
                     })
                 this.$emit('close')
                 }
+              }
             }
     }
 </script>

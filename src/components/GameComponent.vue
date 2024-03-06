@@ -44,14 +44,7 @@ let mission_failed_sound = new Howl({ src: [require('@/assets/mission_failed/mis
 
 export default {
     name: 'GameComponent',
-    created(){
-        // ticking_sound = new Howl({
-        //     src: [require('@/assets/ticking/clock-ticking_cut.mp3')],
-        //   });
-        // mission_failed_sound = new Howl({
-        //     src: [require('@/assets/mission_failed/mission_failed.wav')],
-        //   });
-    },
+
     components: {
         ChoiceComponent,
         TaskComponent,
@@ -80,14 +73,11 @@ export default {
             currentGameProperties: {},
             data : null,
             choiceTime: null
-            // successAudio: successAudio
         }
     },
     mounted(){
 
         this.timerId = setInterval(() => {
-            // console.log(this.time)
-            // console.log(this.missionTime)
             this.time -= 1
             if(this.time==5){
                 ticking_sound.play()
@@ -165,7 +155,6 @@ export default {
                 .then(response => response.json())
                 .then(data => {
                     console.log('data after log_performance')
-                    console.log(data)
                 })
                 .catch((error) => {
                     console.error('Error:', error);
@@ -191,8 +180,6 @@ export default {
             }
         },
         loadTask(difficulty, choiceTime) {
-            console.log('loadTask');
-            console.log(difficulty);
             fetch('https://taskdifficulty.robert-spang.de/next_task', {
             // fetch('http://127.0.0.1:5051/next_task',{
                 method: 'POST',
@@ -220,7 +207,6 @@ export default {
 
         returnHome(currentPoints, aborted) {
             ticking_sound.stop()
-            console.log('Current Points in returnHome (GameComponent): ', currentPoints)
             if(currentPoints){
                 if(currentPoints >= this.missionPoints){
                     console.log('you won')

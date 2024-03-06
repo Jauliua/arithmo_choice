@@ -2,9 +2,6 @@
     <div id="task">
         <div>
             <div id="challenge_card" :style="{backgroundColor: task_color}">
-                <!-- <div v-if="wow_animation">
-                    <Vue3Lottie :animationData="wow" :loop="false" />
-                </div> ...v-else--> 
                 <div id="task_section">
                     <div id="problem">{{problem}}</div>
                     <div id="input_field">{{input_field}}</div>
@@ -57,9 +54,7 @@
 
 <script>
 import {Howl} from 'howler';
-// import { Vue3Lottie } from "vue3-lottie";
-// import "vue3-lottie/dist/style.css";
-// import wow from "../assets/wow.json";
+
 
 
 let key_vals = Array.from({length: 9}, (_, i) => i + 1)
@@ -76,21 +71,6 @@ export default {
     components: {
         // Vue3Lottie,
         // RateComponent
-    },
-    created() {
- 
-        // howl_successAudio  = new Howl({
-        //     src: [require('@/assets/success/collect_cut.mp3')],
-        //   });
-        // howl_missionCompleteAudio  = new Howl({
-        //     src: [require('@/assets/mission_complete/success_cut.mp3')],
-        //   });
-        // howl_wrongAudio  = new Howl({
-        //     src: [require('@/assets/error/error_cut.mp3')],
-        //   });
-        // howl_triesUpAudio = new Howl({
-        //     src: [require('@/assets/mission_failed/negative_beeps.mp3')],
-        //   });
     },
 
     props:{
@@ -121,8 +101,6 @@ export default {
     },
     data() {
         return {
-            // wow,
-            wow_animation: false,
             keys: key_vals.map((val, index) => {
                 return {
                     id: index,
@@ -208,7 +186,6 @@ export default {
                      //CORRECT
                 if (this.input_field == this.data.result){
                     this.log_performance = true
-                    console.log('correct')
                     this.taskComplete = true
                     // MISSION COMPLETE
                     if (this.task_points+this.currentPoints >= this.missionPoints){
@@ -222,18 +199,8 @@ export default {
                         
                     }
                     clearInterval(this.responseTimerId);
-
-                    if (this.difficulty==7){
-                        this.wow_animation = true
-                        setTimeout(() => {
-                        this.wow_animation = false
-                        this.$emit('task-checked', this.task_points);
-                    }, 900);
-                    }
-                    else{
-                        this.input_field = '';
-                        this.$emit('task-checked', this.task_points);
-                    }
+                    this.input_field = '';
+                    this.$emit('task-checked', this.task_points);
                 }
 
                 else{
@@ -243,7 +210,6 @@ export default {
                     if (this.tries_left > 0){
                         howl_wrongAudio.play();
                         console.log('wrong')
-                        // briefly adds class to input for animation
                         this.disabled = true
                         if (this.tries-this.tries_left == this.tries-1){
                             this.tries_animation = true
@@ -260,14 +226,12 @@ export default {
                     // TRIES UP
                     else{
                         this.log_performance = true
-                        console.log('tries up')
                         clearInterval(this.responseTimerId);
                         howl_triesUpAudio.play();
                         this.input_field = this.data.result
                         setTimeout(() => {
                             this.$emit('task-checked', 0);
                         }, 1500);
-                        // this.$emit('task-checked', 0);
                     }
                 }
                 if (this.log_performance){

@@ -5,8 +5,8 @@
         <h3 class="type_title">choice</h3>
         <!-- <Vue3Lottie id="wow_anim" :animationData="wow" :height="200" :width="200" /> -->
         <div id="tutorial-button">
-            <div id="tutorial">TUTORIAL</div></div>
-        <div @click="startGame()" class="skip-button"><div id="skip">skip</div> </div>
+            <div @click="startTut()" id="tutorial">TUTORIAL</div></div>
+        <div @click="startGame()" class="skip-button"><div id="skip">start</div> </div>
     </div>
 </template>
 
@@ -33,6 +33,9 @@ export default {
     methods: {
         startGame() {
             this.$emit('skip-tut');
+        },
+        startTut() {
+            this.$emit('start-tut');
         },
         storeSessionID() {
             this.sessionComponent = false;

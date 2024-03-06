@@ -61,24 +61,17 @@ export default {
             this.prev_success_in_a_row = this.success_in_a_row;
             
             if (missionPoints){
-                console.log('returnHome ContainerComp');
-                console.log('missionPoints: ', missionPoints)
-                console.log('achievedPoints: ', achievedPoints)
-                console.log('missionTime: ', missionTime)
-                console.log(achievedPoints >= missionPoints)
                 this.$store.commit('setPastAchievedPoints', achievedPoints)
                 this.$store.commit('setPastResponseTimes', usedTime)
                 if (aborted){
                     this.missionPoints = missionPoints
                 }
                 else if (achievedPoints >= missionPoints) {
-                    console.log('calculates next mission points')
                     this.$store.commit('setSuccessesInARow', this.prev_success_in_a_row+1==3? 0: this.prev_success_in_a_row+1)
                     nextPoints = (usedTime<=30)? 15 : (usedTime<=60)? 10: (usedTime<=90)? 5: 0;
                     this.missionPoints = missionPoints + nextPoints;
                 } 
                 else {
-                    console.log('15?')
                     this.$store.commit('setSuccessesInARow', this.prev_success_in_a_row-1<=0? 0: this.prev_success_in_a_row-1)
                     nextPoints = (missionPoints-achievedPoints>=20) ? 15 : (missionPoints-achievedPoints>=10) ? 10 : 0;
                     this.missionPoints = Math.max(15, missionPoints - nextPoints);
@@ -110,8 +103,6 @@ export default {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log('response from server to log_mission_data')
-                    console.log(data)
                 })
                 .catch((error) => {
                     console.error('Error:', error);
@@ -123,7 +114,6 @@ export default {
         },
 
         returnLanding() {
-            console.log('returnLanding ContainerComp');
             this.$emit('return-landing');
         }
     }

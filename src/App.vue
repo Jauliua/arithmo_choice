@@ -8,6 +8,7 @@
 
 <script>
 import ContainerComponent from './components/ContainerComponent.vue'
+import TutorialComponent from './components/TutorialComponent.vue'
 import LandingComponent from './components/LandingComponent.vue';
 export default {
   name: 'App',
@@ -18,15 +19,19 @@ export default {
   },
   components: {
     ContainerComponent,
-    LandingComponent
+    LandingComponent,
+    TutorialComponent
   },
   computed: {
     currenMainEvents: function() {
       if (this.mainComponent === 'LandingComponent') {
-        return { 'skip-tut': this.startGame }
+        return { 'skip-tut': this.startGame, 'start-tut': this.startTut}
       }
       if (this.mainComponent === 'ContainerComponent') {
         return { 'return-landing': this.returnLanding }
+      }
+      if (this.mainComponent === 'TutorialComponent') {
+        return { 'skip-tut': this.startGame, 'return-landing': this.returnLanding }
       }
       return {};
     }
@@ -39,18 +44,17 @@ export default {
     returnLanding() {
       console.log('returnLanding App');
       this.mainComponent = 'LandingComponent';
+    },
+    startTut(){
+      console.log('startTut');
+      this.mainComponent = 'TutorialComponent';
     }
   }
-  // ,mounted() {
-  //   // Scroll to top after page load to shrink Safari navigation bar
-  //   window.scrollTo(0, 1);
-  // }
 }
 </script>
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

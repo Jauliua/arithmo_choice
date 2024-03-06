@@ -1,6 +1,4 @@
 <template>
-       
-
         <div id="choices">
                 <div class="choice_btn" v-for="diff in difficulties" @click="taskSelected(diff)"  :key="diff.id" :style="{backgroundColor: '#'+ diff.color, opacity: diff.opacity}">
                     {{ points[7-diff.id] }}
@@ -10,7 +8,6 @@
 
 <script>
 let colors = ['FFE6A9','FFCEA3', 'FFAB9A', 'FF9BA1','FF889F', 'FF5F8D', 'FF2472' ]
-// let colors = ['FF2472', 'FF5F8D', 'FF889F', 'FF9BA1', 'FFAB9A', 'FFCEA3', 'FFE6A9']
     
 export default {
     name: 'ChoiceComponent',
