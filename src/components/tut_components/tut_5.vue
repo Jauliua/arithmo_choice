@@ -137,6 +137,7 @@ svg{
     display: inline;
     height: calc( 100vh - 450px);
     min-height: 170px;
+    max-height: 450px;
 }
 #tut{
     display:grid;
@@ -163,7 +164,7 @@ svg{
     position: fixed;
     /* scale: 0.9; */
     /* width: 100%; */
-    top: 46vh;
+    top: 36vh;
     /* grid-row: 3/4; */
   
 

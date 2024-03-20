@@ -118,7 +118,8 @@ export default {
             if_success_current_points: this.currentPoints+ this.difficulty,
             startRate: false,
             taskComplete: false,
-            log_performance: false
+            log_performance: false,
+            tries_up_flag: false 
 
         };
     },
@@ -178,8 +179,8 @@ export default {
             }  
         },
         checkInput(){
-            if(this.input_field == ''){
-                console.log('empty')
+            if(this.input_field == ''|| this.tries_up_flag==true){
+                console.log('empty OR tries up')
             }
        
             else{
@@ -225,6 +226,7 @@ export default {
 
                     // TRIES UP
                     else{
+                        this.tries_up_flag = true;
                         this.log_performance = true
                         clearInterval(this.responseTimerId);
                         howl_triesUpAudio.play();

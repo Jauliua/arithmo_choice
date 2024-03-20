@@ -35,6 +35,7 @@ export default {
             this.$emit('skip-tut');
         },
         startTut() {
+            console.log('startTut');
             this.$emit('start-tut');
         },
         storeSessionID() {
